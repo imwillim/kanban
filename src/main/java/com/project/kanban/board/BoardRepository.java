@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> getBoardsByWorkspace(Workspace workspace);
-    Optional<Board> getBoardById(long boardId);
+    Optional<Board> getBoardByWorkspaceIdAndId(long workspaceId, long id);
+    List<Board> getBoardsByWorkspaceId(long workspaceId);
 }

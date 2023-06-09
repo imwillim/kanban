@@ -3,7 +3,9 @@ package com.project.kanban.listing;
 import com.project.kanban.board.Board;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +18,8 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Optional<Listing> getListing(long listingId){
-        return listingRepository.findById(listingId);
+    public Optional<Listing> getListing(long boardId, long listingId){
+        return listingRepository.getListingByBoardIdAndId(boardId, listingId);
     }
 
     @Override
@@ -32,12 +34,11 @@ public class ListingServiceImpl implements ListingService {
     }
 
     @Override
-    public Listing updateListing(long listingId, ListingDTO requestBody) {
-        Listing updatedListing = getListing(listingId).orElse(null);
+    public Listing updateListing(Listing updatedListing, ListingDTO requestBody) {
         if (updatedListing != null){
             updatedListing.setTitle(requestBody.getTitle());
-            updatedListing.setType(requestBody.getType());
-            updatedListing.setUpdatedAt(LocalDateTime.now());
+            updatedListing.setType(ListingType.valueOf(requestBody.getType()));
+            updatedListing.setUpdatedAt(Timestamp.from(Instant.now()).getTime());
             return listingRepository.save(updatedListing);
         }
         return null;
@@ -49,8 +50,4 @@ public class ListingServiceImpl implements ListingService {
         listingRepository.deleteById(listingId);
     }
 
-    @Override
-    public Listing saveListing(Listing listing) {
-        return listingRepository.save(listing);
-    }
 }

@@ -3,7 +3,10 @@ package com.project.kanban.listing;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -11,14 +14,16 @@ public class ListingDTO {
     private long id;
     private String title;
     private String type;
-    private LocalDateTime updatedAt;
-    private LocalDateTime createdAt;
+    private boolean isArchived;
+    private long updatedAt;
+    private long createdAt;
     private long boardId;
 
     public ListingDTO(String title){
         this.title = title;
-        this.type = "Todo";
-        this.updatedAt = LocalDateTime.now();
-        this.createdAt = LocalDateTime.now();
+        this.type = "TODO";
+        this.isArchived = false;
+        this.updatedAt = Timestamp.from(Instant.now()).getTime();
+        this.createdAt = Timestamp.from(Instant.now()).getTime();
     }
 }

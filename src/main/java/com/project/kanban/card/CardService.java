@@ -8,13 +8,11 @@ import java.util.Optional;
 public interface CardService {
     List<Card> getCards(Listing listing);
 
-    Optional<Card> getCard(long cardId);
+    Optional<Card> getCard(long listingId, long cardId);
 
     Card createCard(CardDTO requestBody, Listing listing);
 
-    Card updateCard(long cardId, CardDTO cardDTO);
+    Card updateCard(Card card, CardDTO cardDTO);
 
     void deleteCard(long cardId);
-
-    Card saveCard(Card card);
 }

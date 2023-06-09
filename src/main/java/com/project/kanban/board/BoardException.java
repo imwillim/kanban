@@ -32,6 +32,13 @@ public class BoardException  {
         }
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class BoardNotValidId extends NumberFormatException {
+        public BoardNotValidId() {
+            super("Id for Board must be a number.");
+            log.error("Id for Board must be a number.");
+        }
+    }
 
 
 }

@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -16,8 +17,8 @@ public class BoardDTO {
     private String title;
     private String description;
     private boolean isRemoved;
-    private LocalDateTime updatedAt;
-    private LocalDateTime createdAt;
+    private long updatedAt;
+    private long createdAt;
     private long workspaceId;
     private List<Listing> listings;
 }

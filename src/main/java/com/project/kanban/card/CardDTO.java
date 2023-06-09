@@ -3,7 +3,8 @@ package com.project.kanban.card;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -12,7 +13,14 @@ public class CardDTO {
     private String title;
     private String description;
     private boolean isArchived;
-    private LocalDateTime updatedAt;
-    private LocalDateTime createdAt;
+    private long updatedAt;
+    private long createdAt;
     private long listingId;
+
+    public CardDTO(String title){
+        this.title = title;
+        this.isArchived = false;
+        this.updatedAt = Timestamp.from(Instant.now()).getTime();
+        this.createdAt = Timestamp.from(Instant.now()).getTime();
+    }
 }
