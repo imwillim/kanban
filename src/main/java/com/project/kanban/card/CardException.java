@@ -31,4 +31,12 @@ public class CardException {
             log.error("Not valid parameters for Card entity.");
         }
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class CardNotValidId extends NumberFormatException {
+        public CardNotValidId() {
+            super("Id for Card must be a number.");
+            log.error("Id for Card must be a number.");
+        }
+    }
 }

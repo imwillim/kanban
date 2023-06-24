@@ -11,7 +11,9 @@ public class WorkspaceDTOMapper implements Function<Workspace, WorkspaceDTO> {
         return new WorkspaceDTO(
                 workspace.getId(),
                 workspace.getTitle(),
-                workspace.getDescription()
+                workspace.getDescription(),
+                workspace.getUpdatedAt(),
+                workspace.getCreatedAt()
         );
     }
 }

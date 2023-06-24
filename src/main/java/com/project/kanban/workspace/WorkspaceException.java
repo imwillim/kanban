@@ -32,4 +32,12 @@ public class WorkspaceException {
             log.error("Not valid parameters for Workspace entity.");
         }
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class WorkspaceNotValidId extends NumberFormatException {
+        public WorkspaceNotValidId() {
+            super("Id for Workspace must be a number.");
+            log.error("Id for Workspace must be a number.");
+        }
+    }
 }

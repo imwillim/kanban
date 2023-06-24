@@ -4,7 +4,9 @@ import com.project.kanban.workspace.Workspace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +25,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Optional<Board> getBoard(long boardId) {
-        return boardRepository.findById(boardId);
+    public Optional<Board> getBoard(long workspaceId, long boardId) {
+        return boardRepository.getBoardByWorkspaceIdAndId(workspaceId, boardId);
     }
 
     @Override
@@ -33,12 +35,11 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board updateBoard(long boardId, BoardDTO boardDTO) {
-        Board updatedBoard = getBoard(boardId).orElse(null);
+    public Board updateBoard(Board updatedBoard, BoardDTO boardDTO) {
         if (updatedBoard != null){
             updatedBoard.setTitle(boardDTO.getTitle());
             updatedBoard.setDescription(boardDTO.getDescription());
-            updatedBoard.setUpdatedAt(LocalDateTime.now());
+            updatedBoard.setUpdatedAt(Timestamp.from(Instant.now()).getTime());
             return updatedBoard;
         }
         return null;

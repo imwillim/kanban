@@ -6,7 +6,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity(name = "workspace")
 @Data
@@ -18,8 +21,8 @@ public class Workspace {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @NotNull(message = "Title cannot be null")
-    @Size(min = 3, max = 50)
+    @Size(min = 3, max = 50, message = "Title of board have a length from 3 to 50 characters.")
+    @NotNull(message = "Title of workspace cannot be null")
     @Column(name = "title", nullable = false)
     private String title;
 
@@ -27,16 +30,17 @@ public class Workspace {
     private String description;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private long updatedAt;
+
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private long createdAt;
 
 
     public Workspace(String title, String description) {
         this.title = title;
         this.description = description;
-        this.updatedAt = LocalDateTime.now();
-        this.createdAt = LocalDateTime.now();
+        this.updatedAt = Timestamp.from(Instant.now()).getTime();
+        this.createdAt = Timestamp.from(Instant.now()).getTime();
     }
 }

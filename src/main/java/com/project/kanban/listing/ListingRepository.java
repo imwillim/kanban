@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
     List<Listing> getListingsByBoard(Board board);
-    Optional<Listing> getListingsById(long listingId);
+    Optional<Listing> getListingByBoardIdAndId(long boardId, long listingId);
 
 }

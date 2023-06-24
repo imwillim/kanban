@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +43,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         if (workspace != null) {
             workspace.setTitle(workspaceDTO.getTitle());
             workspace.setDescription(workspaceDTO.getDescription());
-            workspace.setUpdatedAt(LocalDateTime.now());
+            workspace.setUpdatedAt(Timestamp.from(Instant.now()).getTime());
             return workspaceRepository.save(workspace);
         }
         return null;

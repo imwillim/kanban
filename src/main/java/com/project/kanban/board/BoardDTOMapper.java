@@ -1,5 +1,6 @@
 package com.project.kanban.board;
 
+import com.project.kanban.listing.Listing;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
@@ -15,7 +16,6 @@ public class BoardDTOMapper implements Function<Board, BoardDTO> {
                 board.getCreatedAt(),
                 board.getUpdatedAt(),
                 board.getWorkspace().getId(),
-                board.getListings().stream().toList()
-        );
+                board.getListings().stream().toList());
     }
 }

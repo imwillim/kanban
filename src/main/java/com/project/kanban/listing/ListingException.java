@@ -31,4 +31,13 @@ public class ListingException {
             log.error("Not valid parameters for Listing entity.");
         }
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public static class ListingNotValidId extends NumberFormatException {
+        public ListingNotValidId() {
+            super("Id for Listing must be a number.");
+            log.error("Id for Listing must be a number.");
+        }
+    }
+
 }
