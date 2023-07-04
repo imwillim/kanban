@@ -9,11 +9,14 @@ public interface BoardFacadeService {
     List<BoardDTO> getBoardsProcess(Authentication authentication, long workspaceId);
     Optional<BoardDTO> getBoardProcess(Authentication authentication, long workspaceId, long boardId);
 
-    Optional<BoardDTO> createBoardProcess(Authentication authentication, long workspaceId, BoardDTO requestBody);
+    Optional<BoardDTO> createBoardProcess(Authentication authentication,
+                                          long workspaceId, BoardDTO requestBody);
 
-    Optional<BoardDTO> updateBoardProcess(Authentication authentication, long workspaceId, long boardId, BoardDTO boardDTO);
+    Optional<BoardDTO> updateBoardProcess(Authentication authentication, long workspaceId,
+                                          long boardId, BoardDTO boardDTO);
     void deleteBoardProcess(Authentication authentication, long workspaceId, long boardId);
 
-    void assignBoard(Authentication authentication, long workspaceId, long boardId);
+    void assignBoard(Authentication authentication, long workspaceId,
+                     long boardId, BoardAssignRequest boardAssignRequest);
 
 }

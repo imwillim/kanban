@@ -1,6 +1,7 @@
 package com.project.kanban.workspace;
 
 import com.project.kanban.userinvitation.UserInvitation;
+import com.project.kanban.userworkspace.UserWorkspaceRequest;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
@@ -13,14 +14,9 @@ public interface WorkspaceFacadeService {
     Optional<WorkspaceDTO> updateWorkspaceProcess(Authentication authentication, long workspaceId, WorkspaceDTO workspaceDTO);
     void deleteWorkspaceProcess(Authentication authentication, long workspaceId);
     void inviteMemberWorkspace(Authentication authentication, long workspaceId, WorkspaceInviteRequest email);
-
     List<UserInvitation> getInvitations(Authentication authentication);
-
-
     void modifyInvitation(Authentication authentication, long userWorkspaceId, WorkspaceInviteRequest status);
-
-    void setRoleMemberWorkspace(Authentication authentication, long workspaceId, long roleUserId, String role);
-
-
+    void setRoleMemberWorkspace(Authentication authentication, long workspaceId, long roleUserId,
+                                UserWorkspaceRequest userWorkspaceRequest);
     List<UserInvitation> getListOfInvitedUsers(Authentication authentication);
 }

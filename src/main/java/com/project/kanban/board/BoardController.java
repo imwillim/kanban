@@ -74,7 +74,6 @@ public class BoardController {
                 workspaceId, requestBody);
 
         if(createdBoard.isPresent()) {
-
             URI createdBoardURI = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(createdBoard.get().getId()).toUri();
             log.info("New board is created.");
@@ -122,11 +121,18 @@ public class BoardController {
                 null), HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping(path = "/workspaces/{workspaceId}/boards/{boardId}/join")
+    @PostMapping(path = "/workspaces/{workspaceId}/boards/{boardId}/assign")
     public ResponseEntity<Object> assignBoard(Authentication authentication,
                                               @PathVariable("workspaceId") long workspaceId,
-                                              @PathVariable("boardId") long boardId) {
-        boardFacadeService.assignBoard(authentication, workspaceId, boardId);
+                                              @PathVariable("boardId") long boardId,
+                                              @RequestBody BoardAssignRequest boardAssignRequest,
+                                              BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder message = RequestBodyError.returnRequiredFields(bindingResult);
+            throw new RequestBodyException.BadRequestBody(message);
+        }
+
+        boardFacadeService.assignBoard(authentication, workspaceId, boardId, boardAssignRequest);
         return  ResponseEntity.ok().body(new SuccessfulResponse(
                 HttpStatus.OK.value(),
                 "Join a board",

@@ -32,6 +32,12 @@ public class Card {
     @Column(name = "is_archived")
     private boolean isArchived;
 
+    @Column(name = "column_order")
+    private int columnOrder;
+
+    @Column(name = "row_order")
+    private int rowOrder;
+
     @Column(name = "updated_at")
     private long updatedAt;
 
@@ -43,13 +49,14 @@ public class Card {
     @JoinColumn(name = "listing_id")
     private Listing listing;
 
-    public Card(String title, String description, Listing listing){
+    public Card(String title, String description, int columnOrder, int rowOrder, Listing listing){
         this.title = title;
         this.description = description;
         this.isArchived = false;
+        this.columnOrder = columnOrder;
+        this.rowOrder = rowOrder;
         this.updatedAt = Timestamp.from(Instant.now()).getTime();
         this.createdAt = Timestamp.from(Instant.now()).getTime();
         this.listing = listing;
     }
-
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 public interface CardFacadeService {
-    List<CardDTO> getCardsProcess(long workspaceId, long boardId, long listingId);
+    List<CardDTO> getCardsProcess(Authentication authentication, long workspaceId, long boardId, long listingId);
     Optional<CardDTO> getCardProcess(Authentication authentication, long workspaceId, long boardId,
                                      long listingId, long cardId);
     Optional<CardDTO> createCardProcess(Authentication authentication, long workspaceId, long boardId,
@@ -16,7 +16,14 @@ public interface CardFacadeService {
     void deleteCardProcess(Authentication authentication, long workspaceId, long boardId,
                            long listingId, long cardId);
 
-    void assignCard(Authentication authentication, long listingId, long cardId);
+    Optional<CardDTO> modifyArchiveCard(Authentication authentication, long workspaceId, long boardId,
+                           long listingId, long cardId, CardDTO cardDTO);
 
+    void assignCard(Authentication authentication, long listingId,
+                    long cardId, CardAssignRequest cardAssignRequest);
+
+
+    Optional<CardDTO> dragCard(Authentication authentication, long workspaceId, long boardId,
+                               long listingId, long cardId, CardDTO cardDTO);
 
 }

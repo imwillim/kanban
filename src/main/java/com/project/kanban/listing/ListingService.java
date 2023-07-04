@@ -15,4 +15,10 @@ public interface ListingService {
     Listing updateListing(Listing listing, ListingDTO listingDTO);
 
     void deleteListing(long listingId);
+
+    Listing modifyArchivedListing(Listing listing, ListingDTO listingDTO);
+
+    Listing modifyOrderListing(Listing listing, int columnOrder);
+
+    Listing getListingByBoardIdAndColumnOrder(long boardId, int columnOrder);
 }

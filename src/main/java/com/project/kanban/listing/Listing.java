@@ -30,10 +30,6 @@ public class Listing {
     @NotNull(message = "Title of listing must not be null.")
     private String title;
 
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    private ListingType type;
-
     @Column(name = "archived")
     private boolean isArchived;
 
@@ -48,14 +44,17 @@ public class Listing {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    @Column(name = "column_order")
+    private int columnOrder;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "listing")
     @JsonManagedReference
     private List<Card> cards;
 
-    public Listing(String title, String type, Board board){
+    public Listing(String title, int columnOrder, Board board){
         this.title = title;
-        this.type = ListingType.valueOf(type.toUpperCase());
         this.isArchived = false;
+        this.columnOrder = columnOrder;
         this.updatedAt = Timestamp.from(Instant.now()).getTime();
         this.createdAt = Timestamp.from(Instant.now()).getTime();
         this.board = board;

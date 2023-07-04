@@ -12,6 +12,8 @@ public class CardDTOMapper implements Function<Card, CardDTO> {
                 card.getTitle(),
                 card.getDescription(),
                 card.isArchived(),
+                card.getColumnOrder(),
+                card.getRowOrder(),
                 card.getUpdatedAt(),
                 card.getCreatedAt(),
                 card.getListing().getId()

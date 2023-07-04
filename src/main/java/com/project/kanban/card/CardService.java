@@ -8,11 +8,16 @@ import java.util.Optional;
 public interface CardService {
     List<Card> getCards(Listing listing);
 
-    Optional<Card> getCard(long listingId, long cardId);
+    Optional<Card> getCardByListingAndCardIds(long listingId, long cardId);
 
     Card createCard(CardDTO requestBody, Listing listing);
 
     Card updateCard(Card card, CardDTO cardDTO);
 
     void deleteCard(long cardId);
+
+    Card modifyArchive(Card card, CardDTO cardDTO);
+
+    Card modifyOrders(Card card, int columnOrder, int rowOrder);
+
 }
