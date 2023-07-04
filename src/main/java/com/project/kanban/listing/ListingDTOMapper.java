@@ -10,8 +10,8 @@ public class ListingDTOMapper implements Function<Listing, ListingDTO> {
         return new ListingDTO(
                 listing.getId(),
                 listing.getTitle(),
-                listing.getType().toString(),
                 listing.isArchived(),
+                listing.getColumnOrder(),
                 listing.getUpdatedAt(),
                 listing.getCreatedAt(),
                 listing.getBoard().getId()

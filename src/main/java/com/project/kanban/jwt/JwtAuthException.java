@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class JwtAuthException {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public static class Unauthorized extends JwtException {
-        public Unauthorized(String message){
+    public static class KanbanUnauthorized extends JwtException {
+        public KanbanUnauthorized(String message){
             super(message);
             log.error(message);
         }

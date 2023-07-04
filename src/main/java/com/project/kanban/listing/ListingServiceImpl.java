@@ -29,7 +29,7 @@ public class ListingServiceImpl implements ListingService {
 
     @Override
     public Listing createListing(ListingDTO requestBody, Board board) {
-        Listing listing = new Listing(requestBody.getTitle(), requestBody.getType(), board);
+        Listing listing = new Listing(requestBody.getTitle(), board.getListings().size(), board);
         return listingRepository.save(listing);
     }
 
@@ -37,17 +37,37 @@ public class ListingServiceImpl implements ListingService {
     public Listing updateListing(Listing updatedListing, ListingDTO requestBody) {
         if (updatedListing != null){
             updatedListing.setTitle(requestBody.getTitle());
-            updatedListing.setType(ListingType.valueOf(requestBody.getType()));
             updatedListing.setUpdatedAt(Timestamp.from(Instant.now()).getTime());
             return listingRepository.save(updatedListing);
         }
         return null;
-
     }
 
     @Override
     public void deleteListing(long listingId) {
         listingRepository.deleteById(listingId);
+    }
+
+    @Override
+    public Listing modifyArchivedListing(Listing updatedListing, ListingDTO listingDTO) {
+        if (updatedListing != null){
+            updatedListing.setArchived(listingDTO.isArchived());
+            return listingRepository.save(updatedListing);
+        }
+        return null;
+    }
+
+    @Override
+    public Listing modifyOrderListing(Listing updatedListing, int columnOrder) {
+        if (updatedListing != null) {
+            updatedListing.setColumnOrder(columnOrder);
+        }
+        return null;
+    }
+
+    @Override
+    public Listing getListingByBoardIdAndColumnOrder(long boardId, int columnOrder) {
+        return listingRepository.getListingByBoardIdAndColumnOrder(boardId, columnOrder);
     }
 
 }

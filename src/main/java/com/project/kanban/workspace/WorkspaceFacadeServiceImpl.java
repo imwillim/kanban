@@ -8,10 +8,13 @@ import com.project.kanban.user.UserService;
 import com.project.kanban.userinvitation.UserInvitation;
 import com.project.kanban.userinvitation.UserInvitationService;
 import com.project.kanban.userworkspace.UserWorkspace;
+import com.project.kanban.userworkspace.UserWorkspaceRequest;
 import com.project.kanban.userworkspace.UserWorkspaceService;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.util.EnumUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -83,20 +86,18 @@ public class WorkspaceFacadeServiceImpl implements WorkspaceFacadeService {
     public Optional<WorkspaceDTO> updateWorkspaceProcess(Authentication authentication,
                                                          long workspaceId,
                                                          WorkspaceDTO workspaceDTO) {
-        Optional<Workspace> workspace = workspaceService.getWorkspace(workspaceId);
+        Optional<Workspace> workspace = Optional.of(workspaceService.getWorkspace(workspaceId)
+                .orElseThrow(WorkspaceException.WorkspaceNotFound::new));
 
-        if (workspace.isEmpty()) {
-            throw new WorkspaceException.WorkspaceNotFound();
-        }
         long userId = AuthService.getUserIdFromAuthentication(authentication);
         String userWorkspaceRole = userWorkspaceService.getRoleFromUserWorkspace(userId, workspaceId);
 
-        if (AuthService.checkAuthority(userWorkspaceRole, "OWNER")
-                || AuthService.checkAuthority(userWorkspaceRole, "ADMIN")
-                || AuthService.checkAuthority(userWorkspaceRole, "EDITOR"))
-            return workspace.flatMap(value -> Optional.of(workspaceService.updateWorkspace(value, workspaceDTO))
+        if (!AuthService.checkAuthority(userWorkspaceRole, "OWNER")
+                && !AuthService.checkAuthority(userWorkspaceRole, "ADMIN")
+                && AuthService.checkAuthority(userWorkspaceRole, "EDITOR"))
+            throw new AuthException.ForbiddenError();
+        return workspace.flatMap(value -> Optional.of(workspaceService.updateWorkspace(value, workspaceDTO))
                     .map(workspaceDTOMapper));
-        throw new AuthException.ForbiddenError();
     }
 
     @Override
@@ -105,34 +106,34 @@ public class WorkspaceFacadeServiceImpl implements WorkspaceFacadeService {
                 .orElseThrow(WorkspaceException.WorkspaceNotFound::new);
 
         long userId = AuthService.getUserIdFromAuthentication(authentication);
-        String userWorkspaceRole = userWorkspaceService.getRoleFromUserWorkspace(userId, workspaceId);
-
-        if (AuthService.checkAuthority(userWorkspaceRole, "ADMIN"))
-            workspaceService.deleteWorkspace(workspaceId);
-        throw new AuthException.ForbiddenError();
+        checkOwnerAdminWorkspace(userId, workspaceId);
+        workspaceService.deleteWorkspace(workspaceId);
     }
 
     @Override
     public void inviteMemberWorkspace(Authentication authentication, long workspaceId, WorkspaceInviteRequest otherUser) {
         long userId = AuthService.getUserIdFromAuthentication(authentication);
-        String userWorkspaceRole = userWorkspaceService.getRoleFromUserWorkspace(userId, workspaceId);
-
-        if (!AuthService.checkAuthority(userWorkspaceRole, "OWNER") &&
-                !AuthService.checkAuthority(userWorkspaceRole, "ADMIN"))
-            throw new AuthException.ForbiddenError();
+        checkOwnerAdminWorkspace(userId, workspaceId);
 
         Optional<User> invitedUser = Optional.of(userService.getUserByEmail(otherUser.getInvitedEmail())
                 .orElseThrow(UserException.UserNotFound::new));
 
-        if (invitedUser.get().getId() == userId) // Check duplicate record
+        long invitedUserId = invitedUser.get().getId();
+        if (invitedUserId == userId) // Cannot invite the user himself
             throw new UserException.UserNotValidParams();
 
+        // Check if invited user exists in a workspace, if exist => cannot invite
+        if (userWorkspaceService.getUserWorkspaceByUserAndWorkspaceIds(invitedUserId, workspaceId).isPresent())
+            throw new WorkspaceException.WorkspaceNotValidParams();
+
+        /* Check if that invited user has been invited, if invited => modify status */
         Optional<UserInvitation> invitation = Optional.of(userInvitationService
-                .getInvitationByOwnerAndInvited(invitedUser.get().getId(), workspaceId)).orElse(null);
+                .getInvitationByOwnerAndInvited(invitedUserId, workspaceId)).orElse(null);
 
         if (invitation.isPresent() && !invitation.get().getStatus().toString().equals("ACCEPTED"))
             userInvitationService.modifyUserInvitation(invitation.get(), "PENDING");
 
+        /* Else => create */
         userInvitationService.createUserInvitation(userId, invitedUser.get().getId(), workspaceId);
     }
 
@@ -150,21 +151,38 @@ public class WorkspaceFacadeServiceImpl implements WorkspaceFacadeService {
             userWorkspaceService.createUserWorkspace(userId, modifyInvitation.get().getWorkspaceId(), "EDITOR");
         }
     }
-
     @Override
     public void setRoleMemberWorkspace(Authentication authentication, long workspaceId,
-                                       long roleUserId, String role) {
+                                       long roleUserId, UserWorkspaceRequest userWorkspaceRequest) {
 
         long userId = AuthService.getUserIdFromAuthentication(authentication);
+        // Cannot change the role of user their-self
+        if (userId == roleUserId)
+            throw new WorkspaceException.WorkspaceNotValidParams();
+
         String userWorkspaceRole = userWorkspaceService.getRoleFromUserWorkspace(userId, workspaceId);
 
-        if (AuthService.checkAuthority(userWorkspaceRole, "OWNER")
-                || AuthService.checkAuthority(userWorkspaceRole, "ADMIN")) {
-            Optional<UserWorkspace> userWorkspace = userWorkspaceService
-                    .getUserWorkspaceByUserAndWorkspaceIds(roleUserId, workspaceId);
-            userWorkspaceService.setRoleUserWorkspace(userWorkspace.get(), role);
+        if (AuthService.checkAuthority(userWorkspaceRole, "OWNER")) {
+            if (userWorkspaceRequest.getRole().equals("OWNER"))
+                throw new AuthException.ForbiddenError();
+            if (!userWorkspaceRequest.getRole().equals("ADMIN") && !userWorkspaceRequest.getRole().equals("CREATOR")
+                    && !userWorkspaceRequest.getRole().equals("VIEWER"))
+                throw new WorkspaceException.WorkspaceNotValidParams();
         }
-        throw new AuthException.ForbiddenError();
+        else if (AuthService.checkAuthority(userWorkspaceRole, "ADMIN")) {
+            if (userWorkspaceRequest.getRole().equals("OWNER") || userWorkspaceRequest.getRole().equals("ADMIN"))
+                throw new AuthException.ForbiddenError();
+            if (!userWorkspaceRequest.getRole().equals("CREATOR") && !userWorkspaceRequest.getRole().equals("VIEWER"))
+                throw new WorkspaceException.WorkspaceNotValidParams();
+        }
+        else {
+            throw new AuthException.ForbiddenError();
+        }
+        Optional<UserWorkspace> userWorkspace = userWorkspaceService
+                .getUserWorkspaceByUserAndWorkspaceIds(roleUserId, workspaceId);
+
+        userWorkspaceService.setRoleUserWorkspace(userWorkspace.get(), userWorkspaceRequest.getRole());
+
     }
 
     @Override
@@ -184,6 +202,16 @@ public class WorkspaceFacadeServiceImpl implements WorkspaceFacadeService {
                 .stream()
                 .filter(inv -> inv.getStatus().toString().equals("PENDING"))
                 .toList();
+    }
+
+    private void checkOwnerAdminWorkspace(long userId, long workspaceId){
+        String userWorkspaceRole = userWorkspaceService.getRoleFromUserWorkspace(userId, workspaceId);
+
+
+        if (!AuthService.checkAuthority(userWorkspaceRole, "OWNER") &&
+                !AuthService.checkAuthority(userWorkspaceRole, "ADMIN"))
+            throw new AuthException.ForbiddenError();
+
     }
 }
 

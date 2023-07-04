@@ -1,6 +1,8 @@
 package com.project.kanban.jwt;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.project.kanban.auth.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +12,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +22,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -46,7 +52,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // Take jwt from request
             String jwt = getJwtFromRequest(request);
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
+            String path = request.getRequestURI();
+
+            if (path.equals("/api/v1/login") || path.equals("/api/v1/signup")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+
+            /* if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) { */
+            if (jwtTokenProvider.validateToken(jwt)) {
                 // Take id user from JWT
                 String email = jwtTokenProvider.getEmailFromJWT(jwt);
                 // Take user detail (payload) from id
@@ -69,21 +84,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
               However, you can still send an error response using the HttpServletResponse object.*/
             /* => RUNTIME EXCEPTION */
 
-            // Log the exception if needed
-            // ex.printStackTrace();
-
-            // Create a custom error response
-
             // Set the response status and content type
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
             // Write the error response to the response body
             ObjectMapper objectMapper = new ObjectMapper();
-            String errorResponseJson = objectMapper.writeValueAsString(new AuthException.ForbiddenError());
+            String errorResponseJson = objectMapper.writeValueAsString(new JwtFilterException(ex.getMessage()));
+
             response.getWriter().write(errorResponseJson);
-
-
             // Return from the doFilterInternal method
             return;
 
@@ -98,7 +107,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+        return "";
     }
 
 }

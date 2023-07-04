@@ -22,7 +22,7 @@ public class AuthService {
     public String returnToken(@Valid @RequestBody LoginRequest loginRequest) {
         // Authenticate by both username and password
 
-            final Authentication authentication = authenticationManager.authenticate(
+        final Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
                             loginRequest.getPassword()
@@ -33,10 +33,12 @@ public class AuthService {
             // If information is valid, set authentication to SecurityContext with authentication
             // On the other hand, the exception will be thrown.
 
-        //if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated()) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             // Return JWT to user
             return jwtTokenProvider.generateToken((UserCustomDetail) authentication.getPrincipal());
+        }
+        return "";
 
     }
 
@@ -51,10 +53,5 @@ public class AuthService {
 
     public static boolean checkAuthority(String userRole, String requiredRole){
         return userRole.equals(requiredRole);
-    }
-
-    public static boolean checkAuthentication(Authentication authentication) {
-        return authentication != null && (!(authentication instanceof AnonymousAuthenticationToken))
-                && authentication.isAuthenticated();
     }
 }

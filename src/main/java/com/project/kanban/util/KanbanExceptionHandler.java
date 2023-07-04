@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -25,28 +27,26 @@ public class KanbanExceptionHandler {
     public ResponseEntity<ResponseError> handleNotFound(Exception notFoundException){
         return new ResponseEntity<>(
                 new ResponseError(
-                        LocalDateTime.now(),
+                        Timestamp.from(Instant.now()).getTime(),
                         HttpStatus.NOT_FOUND.value(),
                         notFoundException.getMessage()
                 ), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler ({
-            JwtAuthException.Unauthorized.class,
             WorkspaceException.WorkspaceNotValidId.class,
             BoardException.BoardNotValidId.class,
             ListingException.ListingNotValidId.class,
             CardException.CardNotValidId.class,
+            UserException.UserNotValidParams.class,
             RequestBodyException.BadRequestBody.class,
             AuthException.LoginFailed.class,
             JwtAuthException.ExpiredToken.class,
-            JwtAuthException.Unauthorized.class,
-            ServletException.ServletResponse.class
     })
     public ResponseEntity<ResponseError> handleNotValidParams(Exception notValidParamsException){
         return new ResponseEntity<>(
                 new ResponseError(
-                        LocalDateTime.now(),
+                        Timestamp.from(Instant.now()).getTime(),
                         HttpStatus.BAD_REQUEST.value(),
                         notValidParamsException.getMessage()
                 ), HttpStatus.BAD_REQUEST);
@@ -61,7 +61,7 @@ public class KanbanExceptionHandler {
     public ResponseEntity<ResponseError> handleDuplicatedEntity(Exception existedEntityException){
         return new ResponseEntity<>(
                 new ResponseError(
-                        LocalDateTime.now(),
+                        Timestamp.from(Instant.now()).getTime(),
                         HttpStatus.CONFLICT.value(),
                         existedEntityException.getMessage()
                 ), HttpStatus.CONFLICT);
@@ -71,9 +71,19 @@ public class KanbanExceptionHandler {
     public ResponseEntity<ResponseError> notExactRole(Exception notAcessException){
         return new ResponseEntity<>(
                 new ResponseError(
-                        LocalDateTime.now(),
+                        Timestamp.from(Instant.now()).getTime(),
+                        HttpStatus.FORBIDDEN.value(),
+                        "User is forbidden."
+                ), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(JwtAuthException.KanbanUnauthorized.class)
+    public ResponseEntity<ResponseError> unauthorizedException(Exception unauthorizedException){
+        return new ResponseEntity<>(
+                new ResponseError(
+                        Timestamp.from(Instant.now()).getTime(),
                         HttpStatus.UNAUTHORIZED.value(),
-                        "Forbidden."
-                ), HttpStatus.UNAUTHORIZED);
+                        "Unauthorized."),
+                HttpStatus.UNAUTHORIZED);
     }
 }

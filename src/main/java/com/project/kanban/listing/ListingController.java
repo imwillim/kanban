@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -108,15 +109,45 @@ public class ListingController {
                         null), HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping(path = "/boards/{boardId}/listings/{listingId}/join")
+    @PostMapping(path = "/boards/{boardId}/listings/{listingId}/assign")
     public ResponseEntity<Object> assignListing(Authentication authentication,
                                               @PathVariable("boardId") long boardId,
-                                              @PathVariable("listingId") long listingId) {
-        listingFacadeService.assignListing(authentication, boardId, listingId);
+                                              @PathVariable("listingId") long listingId,
+                                                @RequestBody ListingAssignRequest listingAssignRequest) {
+        listingFacadeService.assignListing(authentication, boardId, listingId, listingAssignRequest);
         return  ResponseEntity.ok().body(new SuccessfulResponse(
                 HttpStatus.OK.value(),
                 "Join a board",
                 null));
 
+    }
+
+
+    @PutMapping(path = "/boards/{boardId}/listings/{listingId}/archive")
+    public ResponseEntity<Object> archiveListing(Authentication authentication,
+                                                 @PathVariable("boardId") long boardId,
+                                                 @PathVariable("listingId") long listingId,
+                                                 @RequestBody ListingDTO listingDTO){
+        Optional<ListingDTO> archivedListing =
+                listingFacadeService.modifyArchiveListing(authentication, boardId,
+                        listingId, listingDTO);
+
+        return ResponseEntity.ok().body(new SuccessfulResponse(
+                HttpStatus.OK.value(),
+                "Join a board",
+                archivedListing.get()));
+    }
+
+    @PutMapping(path = "/boards/{boardId}/listings/{listingId}/drag")
+    public ResponseEntity<Object> dragListing(Authentication authentication,
+                                              @PathVariable("boardId") long boardId,
+                                              @PathVariable("listingId") long listingId,
+                                              @RequestBody ListingDTO requestBody){
+        Optional<ListingDTO> listingDTO = listingFacadeService.dragListing(authentication, boardId,
+                listingId, requestBody);
+        return ResponseEntity.ok().body(new SuccessfulResponse(
+                HttpStatus.OK.value(),
+                "Join a board",
+                listingDTO.get()));
     }
 }

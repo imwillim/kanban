@@ -36,7 +36,7 @@ public class CardController {
                                            @PathVariable("workspaceId") long workspaceId,
                                            @PathVariable("boardId") long boardId,
                                            @PathVariable("listingId") long listingId){
-        List<CardDTO> cards = cardFacadeService.getCardsProcess(workspaceId, boardId, listingId);
+        List<CardDTO> cards = cardFacadeService.getCardsProcess(authentication, workspaceId, boardId, listingId);
         log.info("List of cards is returned.");
         return ResponseEntity.ok().body(new SuccessfulResponse(HttpStatus.OK.value(),
                 "List of cards returned",
@@ -103,7 +103,7 @@ public class CardController {
                                              @PathVariable("listingId") long listingId,
                                              @PathVariable("cardId") long cardId){
         cardFacadeService.deleteCardProcess(authentication, workspaceId, boardId, listingId, cardId);
-        log.info("Card is deleted.");
+        log.info("Card with card ID: " + cardId + "is deleted.");
         return new ResponseEntity<>(
                 new SuccessfulResponse(HttpStatus.NO_CONTENT.value(),
                         "Delete a card",
@@ -111,15 +111,53 @@ public class CardController {
     }
 
 
-    @PostMapping(path = "/listings/{listingId}/cards/{cardId}/join")
+    @PostMapping(path = "/listings/{listingId}/cards/{cardId}/assign")
     public ResponseEntity<Object> assignCard(Authentication authentication,
                                               @PathVariable("listingId") long listingId,
-                                              @PathVariable("cardId") long cardId) {
-        cardFacadeService.assignCard(authentication, listingId, cardId);
-        return  ResponseEntity.ok().body(new SuccessfulResponse(
+                                              @PathVariable("cardId") long cardId,
+                                             @RequestBody CardAssignRequest cardAssignRequest) {
+        cardFacadeService.assignCard(authentication, listingId, cardId, cardAssignRequest);
+        return ResponseEntity.ok().body(new SuccessfulResponse(
                 HttpStatus.OK.value(),
-                "Join a card",
+                "Join a card with card Id " + cardId,
                 null));
 
     }
+
+    @PatchMapping(path = "/workspaces/{workspaceId}/boards/{boardId}/listings/{listingId}/cards/{cardId}/archive")
+    public ResponseEntity<Object> modifyArchiveCard(Authentication authentication,
+                                                @PathVariable("workspaceId") long workspaceId,
+                                                @PathVariable("boardId") long boardId,
+                                                @PathVariable("listingId") long listingId,
+                                                @PathVariable("cardId") long cardId,
+                                                @RequestBody CardDTO requestBody) {
+        Optional<CardDTO> modifiedArchivedCard =
+                cardFacadeService.modifyArchiveCard(authentication, workspaceId, boardId,
+                        listingId, cardId, requestBody);
+
+        return ResponseEntity.ok().body(new SuccessfulResponse(
+                HttpStatus.OK.value(),
+                "Archive of card ID" + cardId + "is changed.",
+                modifiedArchivedCard));
+    }
+
+    @PatchMapping(path = "/workspaces/{workspaceId}/boards/{boardId}/listings/{listingId}/cards/{cardId}/drag")
+    public ResponseEntity<Object> dragCard(Authentication authentication,
+                                                    @PathVariable("workspaceId") long workspaceId,
+                                                    @PathVariable("boardId") long boardId,
+                                                    @PathVariable("listingId") long listingId,
+                                                    @PathVariable("cardId") long cardId,
+                                                    @RequestBody CardDTO requestBody) {
+        Optional<CardDTO> draggedCard =
+                cardFacadeService.dragCard(authentication, workspaceId, boardId,
+                        listingId, cardId, requestBody);
+
+        return ResponseEntity.ok().body(new SuccessfulResponse(
+                HttpStatus.OK.value(),
+                "Dragged card with card ID: " + cardId,
+                draggedCard));
+    }
+
+
+
 }

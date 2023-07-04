@@ -15,5 +15,11 @@ public interface ListingFacadeService {
 
     void deleteListingProcess(Authentication authentication, long workspaceId, long boardId, long listingId);
 
-    void assignListing(Authentication authentication,long boardId, long listingId);
+    void assignListing(Authentication authentication,long boardId,
+                       long listingId, ListingAssignRequest listingAssignRequest);
+
+    Optional<ListingDTO> modifyArchiveListing(Authentication authentication, long boardId,
+                                              long listingId, ListingDTO listingDTO);
+
+    Optional<ListingDTO> dragListing(Authentication authentication, long boardId, long listingId, ListingDTO listingDTO);
 }

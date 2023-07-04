@@ -2,6 +2,7 @@ package com.project.kanban.workspace;
 
 import com.project.kanban.userinvitation.UserInvitation;
 import com.project.kanban.userworkspace.UserWorkspace;
+import com.project.kanban.userworkspace.UserWorkspaceRequest;
 import com.project.kanban.util.RequestBodyError;
 import com.project.kanban.util.RequestBodyException;
 import com.project.kanban.util.SuccessfulResponse;
@@ -126,7 +127,7 @@ public class WorkspaceController {
         log.info("Invited a user to workspace.");
         return new ResponseEntity<>(
                 new SuccessfulResponse(HttpStatus.CREATED.value(),
-                        "Invited a user to workspace.",
+                        "Invited a user " + invitedUser.getInvitedEmail() + "to workspace.",
                         null), HttpStatus.CREATED);
     }
 
@@ -143,7 +144,7 @@ public class WorkspaceController {
         log.info("Modified an invitation.");
         return new ResponseEntity<>(
                 new SuccessfulResponse(HttpStatus.OK.value(),
-                        "Modified an invitation",
+                        "Modified an invitation with ID " + invitationId,
                         null), HttpStatus.OK);
     }
 
@@ -160,10 +161,21 @@ public class WorkspaceController {
     @GetMapping(path = "invitations")
     public ResponseEntity<Object> getInvitations(Authentication authentication){
         List<UserInvitation> invitations = workspaceFacadeService.getInvitations(authentication);
-        return new ResponseEntity<>(
+        return ResponseEntity.ok(
                 new SuccessfulResponse(HttpStatus.OK.value(),
                         "Get a list of invitations",
-                        invitations), HttpStatus.OK);
+                        invitations));
     }
 
+    @PatchMapping(path = "/workspaces/{workspaceId}/role/{userId}")
+    public ResponseEntity<Object> modifyRoleWorkspace(Authentication authentication,
+                                                      @PathVariable("workspaceId") long workspaceId,
+                                                      @PathVariable("userId") long userId,
+                                                      @RequestBody UserWorkspaceRequest userWorkspaceRequest){
+        workspaceFacadeService.setRoleMemberWorkspace(authentication, workspaceId, userId, userWorkspaceRequest);
+        String message = "Modified role of user id " + userId + "in a workspace id " + workspaceId;
+        return ResponseEntity.ok(new SuccessfulResponse(HttpStatus.OK.value(),
+                message,
+                null));
+    }
 }
