@@ -14,6 +14,9 @@ import java.time.Instant;
 @Entity(name = "kanban_user")
 @Data
 @NoArgsConstructor
+@Table(indexes = {
+        @Index(name = "user_email_idx", columnList = "email")
+})
 @ToString
 public class User {
     @Id

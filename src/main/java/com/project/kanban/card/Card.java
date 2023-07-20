@@ -4,6 +4,7 @@ package com.project.kanban.card;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.project.kanban.listing.Listing;
 import jakarta.persistence.*;
+import jakarta.persistence.Index;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -14,11 +15,15 @@ import java.time.Instant;
 
 @Entity(name = "card")
 @Data
+@Table(indexes = {
+        @Index(name = "card_id_idx", columnList = "card_id")
+})
 @NoArgsConstructor
 public class Card {
     @Id
     @SequenceGenerator(name = "card_sequence", allocationSize = 1)
     @GeneratedValue(generator = "card_sequence", strategy = GenerationType.SEQUENCE)
+    @Column(name = "card_id")
     private long id;
 
     @Column(name = "title")

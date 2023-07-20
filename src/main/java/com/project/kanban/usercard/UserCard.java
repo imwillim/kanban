@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Entity(name = "user_card")
 @NoArgsConstructor
 @Data
-@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"user_id" , "card_id"})})
+@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"user_id" , "card_id"})},
+        indexes = @Index(name = "usercard_idx", columnList = "user_id, card_id"))
 
 public class UserCard {
     @Id
@@ -17,7 +18,6 @@ public class UserCard {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usercard_sequence")
     @Column(name = "id")
     private long id;
-
     @Column(name = "user_id")
     private long userId;
     @Column(name = "card_id")

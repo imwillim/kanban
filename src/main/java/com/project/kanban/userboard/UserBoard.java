@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity(name = "user_board")
 @NoArgsConstructor
-@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"user_id" , "board_id"})})
+@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"user_id" , "board_id"})},
+        indexes = @Index(name = "userboard_idx", columnList = "user_id, board_id"))
 public class UserBoard {
     @Id
     @SequenceGenerator(name = "userboard_sequence",

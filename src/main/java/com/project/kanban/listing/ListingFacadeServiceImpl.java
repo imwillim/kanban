@@ -6,6 +6,7 @@ import com.project.kanban.board.Board;
 import com.project.kanban.board.BoardException;
 import com.project.kanban.board.BoardService;
 import com.project.kanban.card.Card;
+import com.project.kanban.card.CardService;
 import com.project.kanban.user.User;
 import com.project.kanban.user.UserException;
 import com.project.kanban.user.UserService;
@@ -25,6 +26,8 @@ public class ListingFacadeServiceImpl implements ListingFacadeService {
     private final WorkspaceService workspaceService;
     private final BoardService boardService;
     private final ListingService listingService;
+
+    private final CardService cardService;
     private final UserService userService;
 
     private final UserBoardService userBoardService;
@@ -35,6 +38,7 @@ public class ListingFacadeServiceImpl implements ListingFacadeService {
     public ListingFacadeServiceImpl(WorkspaceService workspaceService,
                                     BoardService boardService,
                                     ListingService listingService,
+                                    CardService cardService,
                                     UserService userService,
                                     UserBoardService userBoardService,
                                     UserListingService userListingService,
@@ -42,6 +46,7 @@ public class ListingFacadeServiceImpl implements ListingFacadeService {
         this.workspaceService = workspaceService;
         this.boardService = boardService;
         this.listingService = listingService;
+        this.cardService = cardService;
         this.userService = userService;
         this.userBoardService = userBoardService;
         this.userListingService = userListingService;
@@ -174,7 +179,14 @@ public class ListingFacadeServiceImpl implements ListingFacadeService {
         checkCreatorListing(userId, listingId);
         swapListings(boardId, listing.get());
         Listing modifiedListing = listingService.modifyOrderListing(listing.get(), listingDTO.getColumnOrder());
+        updateColumnOrderCards(modifiedListing);
         return Optional.of(modifiedListing).map(listingDTOMapper);
+    }
+
+    private void updateColumnOrderCards(Listing draggedListing){
+        for (Card card: draggedListing.getCards()){
+            cardService.modifyOrders(card, draggedListing.getColumnOrder(), card.getRowOrder());
+        }
     }
 
     private void setLimitDrag(Listing listing, ListingDTO listingDTO){
@@ -190,6 +202,7 @@ public class ListingFacadeServiceImpl implements ListingFacadeService {
         Listing swappedListing =
                 listingService.getListingByBoardIdAndColumnOrder(boardId, swappedColumnOrder);
         listingService.modifyOrderListing(swappedListing, swappedColumnOrder);
+        updateColumnOrderCards(swappedListing);
     }
 
     private void checkCreatorBoard(long userId, long boardId){
