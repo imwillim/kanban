@@ -15,7 +15,7 @@ public class AuthException {
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public static class LoginFailed extends IllegalAccessError {
+    public static class LoginFailed extends IllegalArgumentException {
             public LoginFailed(){
                 super("Invalid email or password");
                 log.error("Invalid email or password");

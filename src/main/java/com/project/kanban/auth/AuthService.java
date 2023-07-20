@@ -5,7 +5,6 @@ import com.project.kanban.payload.LoginRequest;
 import com.project.kanban.user.UserCustomDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,16 +28,12 @@ public class AuthService {
                     )
             );
 
-
             // If information is valid, set authentication to SecurityContext with authentication
             // On the other hand, the exception will be thrown.
 
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             // Return JWT to user
             return jwtTokenProvider.generateToken((UserCustomDetail) authentication.getPrincipal());
-        }
-        return "";
 
     }
 

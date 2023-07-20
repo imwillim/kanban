@@ -17,11 +17,15 @@ import java.util.List;
 
 @Entity(name = "listing")
 @Data
+@Table(indexes = {
+        @Index(name = "listing_id_idx", columnList = "listing_id")
+})
 @NoArgsConstructor
 public class Listing {
     @Id
     @SequenceGenerator(name = "listing_sequence", sequenceName = "listing_sequence", allocationSize = 1)
     @GeneratedValue(generator = "listing_sequence", strategy = GenerationType.SEQUENCE)
+    @Column(name = "listing_id")
     private long id;
 
 

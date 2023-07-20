@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class LoginResponse {
-    private final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+    private final long timestamp = Timestamp.valueOf(LocalDateTime.now()).getTime();
     private String message = "Login successfully.";
     private int statusCode = 200;
     private long expiredAt = 3600;

@@ -6,19 +6,20 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Entity(name = "workspace")
 @Data
 @NoArgsConstructor
+@Table(indexes = {
+        @Index(name = "workspace_id_idx", columnList = "workspace_id")
+})
 public class Workspace {
     @Id
     @SequenceGenerator(name = "workspace_sequence", sequenceName = "workspace_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workspace_sequence")
-    @Column(name = "id", nullable = false)
+    @Column(name = "workspace_id", nullable = false)
     private long id;
 
     @Size(min = 3, max = 50, message = "Title of board have a length from 3 to 50 characters.")
